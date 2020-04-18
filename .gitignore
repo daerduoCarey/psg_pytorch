@@ -1,0 +1,4 @@
+sc-*
+__pycache__
+data
+prep_data
