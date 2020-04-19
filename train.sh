@@ -1,7 +1,7 @@
 python ./train.py   \
-    --exp_suffix 'try0' \
-    --model_version 'model_cd' \
+    --exp_suffix 'try1' \
+    --model_version 'model_emd' \
     --category 'Chair' \
-    --mode 'shape_space' \
+    --mode 'camera_space' \
     --decoder_type 'fc_upconv' \
     --pretrain_resnet 

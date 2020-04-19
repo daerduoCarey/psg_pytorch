@@ -51,7 +51,7 @@ class PartNetShapeDataset(data.Dataset):
         data_feats = ()
         for feat in self.data_features:
             if feat == 'img':
-                with Image.open(os.path.join(self.img_data_dir, self.data[index], 'view-%02d'%view_id, 'shape-rgb.png')) as fimg:
+                with Image.open(os.path.join(self.img_data_dir, self.data[index], 'view-%02d.png'%view_id)) as fimg:
                     out = np.array(fimg, dtype=np.float32) / 255
                 white_img = np.ones((self.img_size, self.img_size, 3), dtype=np.float32)
                 mask = np.tile(out[:, :, 3:4], [1, 1, 3])
@@ -60,7 +60,7 @@ class PartNetShapeDataset(data.Dataset):
                 data_feats = data_feats + (out,)
             
             elif feat == 'pts':
-                out = load_pts(os.path.join(self.pts_data_dir, self.data[index], 'point_sample', 'sample-points-all-pts-nor-rgba-10000.txt'))[:self.num_point]
+                out = load_pts(os.path.join(self.pts_data_dir, self.data[index]+'.pts'))[:self.num_point]
 
                 if self.mode == 'camera_space':
                     d = np.array([float(i) for i in self.cam_mats['%s-%d'%(self.data[index], view_id)].split(';')], dtype=np.float32).reshape(3, 4)

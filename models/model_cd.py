@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import sys, os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 from torchvision.models import resnet50
-sys.path.append(os.path.join(BASE_DIR, '../../utils'))
+sys.path.append(os.path.join(BASE_DIR, '..'))
 from cd.chamfer import chamfer_distance
 
 
@@ -18,7 +18,7 @@ class FCDecoder(nn.Module):
         super(FCDecoder, self).__init__()
         print('Using FCDecoder!')
 
-        self.mlp1 = nn.Linear(512, 1024)
+        self.mlp1 = nn.Linear(1024, 1024)
         self.mlp2 = nn.Linear(1024, 1024)
         self.mlp3 = nn.Linear(1024, num_point*3)
 
@@ -42,14 +42,14 @@ class FCUpconvDecoder(nn.Module):
         super(FCUpconvDecoder, self).__init__()
         print('Using FCUpconvDecoder!')
 
-        self.mlp1 = nn.Linear(512, 1024)
+        self.mlp1 = nn.Linear(1024, 1024)
         self.mlp2 = nn.Linear(1024, 1024)
         self.mlp3 = nn.Linear(1024, 1024*3)
 
         self.bn1 = nn.BatchNorm1d(1024)
         self.bn2 = nn.BatchNorm1d(1024)
 
-        self.deconv1 = nn.ConvTranspose2d(512, 1024, 2, 1)
+        self.deconv1 = nn.ConvTranspose2d(1024, 1024, 2, 1)
         self.deconv2 = nn.ConvTranspose2d(1024, 512, 3, 1)
         self.deconv3 = nn.ConvTranspose2d(512, 256, 4, 2)
         self.deconv4 = nn.ConvTranspose2d(256, 128, 5, 3)
@@ -87,8 +87,8 @@ class Network(nn.Module):
         self.conf = conf
 
         self.resnet = resnet50(pretrained=conf.pretrain_resnet)
-        self.resnet.fc = nn.Linear(in_features=512, out_features=512, bias=True)
-        self.resnet_final_bn = nn.BatchNorm1d(512)
+        self.resnet.fc = nn.Linear(in_features=2048, out_features=1024, bias=True)
+        self.resnet_final_bn = nn.BatchNorm1d(1024)
 
         if conf.decoder_type == 'fc':
             self.decoder = FCDecoder()
@@ -112,5 +112,5 @@ class Network(nn.Module):
     def get_pc_loss(self, pc1, pc2):
         dist1, dist2 = chamfer_distance(pc1, pc2, transpose=False)
         loss_per_data = torch.mean(dist1, dim=1) + torch.mean(dist2, dim=1)
-        return loss_per_data
+        return loss_per_data * 100
  
